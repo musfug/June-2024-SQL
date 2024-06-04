@@ -1,0 +1,44 @@
+script: 
+create table tbl_orders (
+order_id integer,
+order_date date
+);
+insert into tbl_orders
+values (1,'2022-10-21'),(2,'2022-10-22'),
+(3,'2022-10-25'),(4,'2022-10-25');
+
+select * into tbl_orders_copy from  tbl_orders;
+
+select * from tbl_orders;
+insert into tbl_orders
+values (5,'2022-10-26'),(6,'2022-10-26');
+delete from tbl_orders where order_id=1;
+
+
+Solution:-
+select t1.order_id,'D' Flag from tbl_orders_copy t1 where not exists (select t2.order_id from tbl_orders t2 where t1.order_id=t2.order_id and t1.order_date = t2.order_date )
+ union all
+select t1.order_id,'I' Flag from tbl_orders t1 where not exists (select t2.order_id from tbl_orders_copy t2 where t1.order_id=t2.order_id and t1.order_date = t2.order_date )
+
+2->
+with cte as (
+  select t1.order_id from tbl_orders_copy t1 join tbl_orders t2 on t1.order_id=t2.order_id and t1.order_date = t2.order_date ),
+  cte2 as (
+  select order_id,'D' Flag from 
+  Tbl_orders_copy where order_id not in(select order_id from cte)),
+  cte3 as (
+  select t1.order_id from tbl_orders t1 join tbl_orders_copy t2 on t1.order_id=t2.order_id and t1.order_date = t2.order_date ),
+    cte4 as (
+  select order_id,'I' Flag from 
+  Tbl_orders where order_id not in(select order_id from cte3))
+  
+  select * from cte2 
+  union all
+  select * from cte4
+
+Output:-
+order_id	Flag
+1	         D
+5	         I
+6        	I
+
