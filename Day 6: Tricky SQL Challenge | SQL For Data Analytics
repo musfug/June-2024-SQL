@@ -1,0 +1,43 @@
+create table section_data
+(
+section varchar(5),
+number integer
+)
+insert into section_data
+values ('A',5),('A',7),('A',10) ,('B',7),('B',9),('B',10) ,('C',9),('C',7),('C',9) ,('D',10),('D',3),('D',8);
+
+Solution:-
+  with cte as(
+select *,
+row_number() over(partition by section order by number desc) as rn 
+
+from section),
+cte2 as(
+
+select * , sum(number) over(partition by section) as sum_i
+  from cte where rn<=2), 
+  cte3 as(
+select * ,dense_rank() over( order by sum_i desc) as rn1
+
+from cte2),
+cte4 as(
+select * ,
+max(number) over(partition by section) as max_n from cte3 
+where rn1<=2),
+cte5 as(
+select *, dense_rank() over(order by max_n desc) as rn3 
+from cte4)
+select * from cte5 
+where rn3=1
+
+Output:-
+section	number	rn	sum_i	rn1	max_n	rn3
+B	10	1	19	1	10	1
+B	9	2	19	1	10	1
+D	10	1	18	2	10	1
+D	8	2	18	2	10	1
+
+    
+
+
+
