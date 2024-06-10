@@ -1,0 +1,63 @@
+Here is the ready script:
+create table emp(
+emp_id int,
+emp_name varchar(20),
+department_id int,
+salary int,
+manager_id int,
+emp_age int);
+
+insert into emp
+values
+(1, 'Ankit', 100,10000, 4, 39);
+insert into emp
+values (2, 'Mohit', 100, 15000, 5, 48);
+insert into emp
+values (3, 'Vikas', 100, 10000,4,37);
+insert into emp
+values (4, 'Rohit', 100, 5000, 2, 16);
+insert into emp
+values (5, 'Mudit', 200, 12000, 6,55);
+insert into emp
+values (6, 'Agam', 200, 12000,2, 14);
+insert into emp
+values (7, 'Sanjay', 200, 9000, 2,13);
+insert into emp
+values (8, 'Ashish', 200,5000,2,12);
+insert into emp
+values (9, 'Mukesh',300,6000,6,51);
+insert into emp
+values (10, 'Rakesh',300,7000,6,50);
+
+
+
+Solution:-
+with cte as(
+select  e.department_id,avg(salary) as dept_sal,count(*) as no_of ,sum(salary) as total_dep
+from emp e               
+group by department_id ),
+cte2 as(
+
+select c.department_id as first_id,
+  c.dept_sal as first_dept_sal ,c.total_dep as first_other_dept ,
+  c1.department_id as second_id,
+  c1.dept_sal as second_total_sal ,c1.total_dep as second_other_dept ,c1.no_of as secondno
+  from cte c
+join cte c1 
+on c.department_id!=c1.department_id)
+
+select * ,sum(second_other_dept)/sum(secondno) 
+from cte2 
+group by first_dept_sal
+having first_dept_sal<sum(second_other_dept)/sum(secondno) 
+
+
+Other Solution:-
+select  e.department_id,avg(salary) from emp e               
+group by department_id having  avg(salary)< (select avg(salary) from emp e1 where e.department_id !=e1.department_id)
+
+
+first_id	first_dept_sal	first_other_dept	second_id	second_total_sal	second_other_dept	secondno	sum(second_other_dept)/sum(secondno)
+300	6500	13000	100	10000	40000	4	9750
+
+
